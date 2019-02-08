@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  db_postgres_e2e:
+    container_name: demo_postgres_e2e
+    image: postgres:10.5
+    restart: always
+    ports:
+      - 5433:5432
+#    volumes:
+#      - "${SQL_SCRIPTS_DIR}:/docker-entrypoint-initdb.d/"
+    environment:
+      - POSTGRES_INITDB_ARGS="-A md5"  #--auth-local  # --auth-host
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgresql
+    networks:
+      - backend
+  app_e2e:
+    container_name: demo_e2e
+    image: com.fabris/docker-demo:0.0.1-snapshot
+    depends_on:
+      - db_postgres_e2e
+    restart: always
+    ports:
+      - 8080
+    environment:
+      - DATABASE_HOST=demo_postgres_e2e
+      - DATABASE_PORT=5432
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
